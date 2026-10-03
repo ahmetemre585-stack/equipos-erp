@@ -1348,8 +1348,7 @@ def main(page: ft.Page):
     page.go("/splash")
 
 if __name__=="__main__":
-    # Web / iOS üzerinden ağ ile erişim için başlatma komutu (0.0.0.0 host ataması)
-    port = int(os.environ.get("PORT", 8550))
+    port = int(os.environ.get("PORT", 10000))
     ft.app(
         target=main, 
         view=ft.AppView.WEB_BROWSER, 
