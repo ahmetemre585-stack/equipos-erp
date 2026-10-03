@@ -1297,61 +1297,75 @@ class AIAssistantView(BaseView):
         except Exception as ex:return f"AI bağlantısı kurulamadı: {ex}"
 
 # =============================================================
-# ROUTER
+# ROUTER & BAŞLATMA
 # =============================================================
 
 def main(page: ft.Page):
-    init_db()
-    page.title="Equipos"
-    page.theme=ft.Theme(color_scheme_seed="#EC4899")
-    page.dark_theme=ft.Theme(color_scheme_seed="#EC4899")
-    page.theme_mode=ft.ThemeMode.LIGHT
-    page.padding=0
-    
-    # Masaüstü uygulaması için (safari/web modunda hata vermez)
-    page.window.min_width = 900
-    page.window.min_height = 650
-    
-    def route_change(e):
-        page.views.clear();r=page.route
-        if r=="/splash":page.views.append(SplashView(page))
-        elif r=="/login":page.views.append(LoginView(page))
-        elif r=="/dashboard":page.views.append(DashboardView(page))
-        elif r=="/tables":page.views.append(TablesView(page))
-        elif r.startswith("/order/"):
-            try:page.views.append(OrderView(page,int(r.split("/")[-1])))
-            except:page.go("/tables")
-        elif r=="/quick-pos":page.views.append(QuickPOSView(page))
-        elif r=="/inventory":page.views.append(InventoryView(page))
-        elif r=="/products":page.views.append(ProductsView(page))
-        elif r=="/cash":page.views.append(CashView(page))
-        elif r=="/shifts":page.views.append(ShiftsView(page))
-        elif r=="/suppliers":page.views.append(SuppliersView(page))
-        elif r=="/reservations":page.views.append(ReservationsView(page))
-        elif r=="/loyalty":page.views.append(LoyaltyView(page))
-        elif r=="/campaigns":page.views.append(CampaignsView(page))
-        elif r=="/reports":page.views.append(ReportsView(page))
-        elif r=="/settings":page.views.append(SettingsView(page))
-        elif r=="/ai-assistant":page.views.append(AIAssistantView(page))
-        else:page.go("/splash")
-        page.update()
-    page.on_route_change=route_change
-    def realtime_refresh():
-        while True:
-            time.sleep(10)
-            try:
-                if page.route == "/dashboard":
-                    page.views.clear(); page.views.append(DashboardView(page)); page.update()
-            except Exception:
-                pass
-    threading.Thread(target=realtime_refresh,daemon=True).start()
-    page.go("/splash")
+    page.title = "Equipos"
+    page.theme = ft.Theme(color_scheme_seed="#EC4899")
+    page.dark_theme = ft.Theme(color_scheme_seed="#EC4899")
+    page.theme_mode = ft.ThemeMode.LIGHT
+    page.padding = 0
 
-if __name__=="__main__":
+    def route_change(e):
+        page.views.clear()
+        r = page.route
+        if r == "/splash":
+            page.views.append(SplashView(page))
+        elif r == "/login":
+            page.views.append(LoginView(page))
+        elif r == "/dashboard":
+            page.views.append(DashboardView(page))
+        elif r == "/tables":
+            page.views.append(TablesView(page))
+        elif r.startswith("/order/"):
+            try:
+                page.views.append(OrderView(page, int(r.split("/")[-1])))
+            except Exception:
+                page.go("/tables")
+        elif r == "/quick-pos":
+            page.views.append(QuickPOSView(page))
+        elif r == "/inventory":
+            page.views.append(InventoryView(page))
+        elif r == "/products":
+            page.views.append(ProductsView(page))
+        elif r == "/cash":
+            page.views.append(CashView(page))
+        elif r == "/shifts":
+            page.views.append(ShiftsView(page))
+        elif r == "/suppliers":
+            page.views.append(SuppliersView(page))
+        elif r == "/reservations":
+            page.views.append(ReservationsView(page))
+        elif r == "/loyalty":
+            page.views.append(LoyaltyView(page))
+        elif r == "/campaigns":
+            page.views.append(CampaignsView(page))
+        elif r == "/reports":
+            page.views.append(ReportsView(page))
+        elif r == "/settings":
+            page.views.append(SettingsView(page))
+        elif r == "/ai-assistant":
+            page.views.append(AIAssistantView(page))
+        else:
+            page.go("/login")
+        page.update()
+
+    page.on_route_change = route_change
+    # Web ortamında doğrudan giriş ekranına yönlendir
+    page.go("/login")
+
+if __name__ == "__main__":
+    # Tabloları sadece sunucu ilk açıldığında 1 kez oluştur
+    try:
+        init_db()
+    except Exception as err:
+        print(f"Veritabanı başlatma hatası: {err}")
+
     port = int(os.environ.get("PORT", 10000))
     ft.app(
-        target=main, 
-        view=ft.AppView.WEB_BROWSER, 
-        host="0.0.0.0", 
+        target=main,
+        view=ft.AppView.WEB_BROWSER,
+        host="0.0.0.0",
         port=port
     )
